@@ -31,6 +31,7 @@ public class JobBuilder{
 
         FileInputFormat.addInputPath( job, new Path( args[0] ) );
         job.setNumReduceTasks(0);
+
         FileOutputFormat.setOutputPath( job, new Path( args[1] ) );
         return job;
     }

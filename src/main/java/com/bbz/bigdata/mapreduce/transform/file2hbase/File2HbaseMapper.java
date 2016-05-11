@@ -2,7 +2,10 @@ package com.bbz.bigdata.mapreduce.transform.file2hbase;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -45,10 +48,10 @@ public class File2HbaseMapper extends Mapper<LongWritable, Text, ObjectUtils.Nul
     @Override
     protected void setup( Context context ) throws IOException, InterruptedException{
         super.setup( context );
-//        this.config = HBaseConfiguration.create();
+        this.config = HBaseConfiguration.create();
 //        System.out.println( "HBaseConfiguration = \n" + config );
-//        this.connection =  ConnectionFactory.createConnection( config );
-//        this.table = connection.getTable( TableName.valueOf( "badage" ) );
+        this.connection =  ConnectionFactory.createConnection( config );
+        this.table = connection.getTable( TableName.valueOf( "badage" ) );
         parser = new TrackRecordParser();
         System.out.println( "run File2HbaseMapper setUp()!!!!!!!!!!!!!!!");
     }
@@ -68,8 +71,8 @@ public class File2HbaseMapper extends Mapper<LongWritable, Text, ObjectUtils.Nul
     public void map( LongWritable key, Text value, Context context ) throws IOException, InterruptedException{
 
         parser.parse( value );
-//        addToHbase( parser );
-        System.out.println( value );
+        addToHbase( parser );
+//        System.out.println( value );
 
 //        context.write( new Text( year ), new IntWritable( airTemperature ) );
     }
