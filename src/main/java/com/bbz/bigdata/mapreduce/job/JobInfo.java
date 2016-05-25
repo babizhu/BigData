@@ -7,6 +7,7 @@ import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.TaskReport;
 import org.apache.hadoop.mapreduce.Cluster;
+import org.apache.hadoop.mapreduce.TaskTrackerInfo;
 import org.apache.hadoop.mapreduce.v2.app.job.Job;
 
 import java.io.IOException;
@@ -32,6 +33,10 @@ public class JobInfo extends Configured{
         Configuration conf = new Configuration();
         Cluster cluster = new Cluster(conf);
 
+        TaskTrackerInfo[] activeTaskTrackers = cluster.getActiveTaskTrackers();
+        for( TaskTrackerInfo taskTracker : activeTaskTrackers ){
+            taskTracker.getTaskTrackerName();
+        }
         org.apache.hadoop.mapreduce.JobStatus[] allJobStatuses = cluster.getAllJobStatuses();
         if(allJobStatuses != null) {
             for( org.apache.hadoop.mapreduce.JobStatus jobStatuse : allJobStatuses ){
