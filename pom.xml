@@ -57,7 +57,8 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
 
-                            <mainClass>com.bbz.bigdata.mapreduce.transform.Launcher</mainClass>
+                            <!--<mainClass>com.bbz.bigdata.mapreduce.transform.Launcher</mainClass>-->
+                            <mainClass>com.bbz.bigdata.mapreduce.job.JobInfo</mainClass>
                             <!--运行的主类-->
 
                         </manifest>
