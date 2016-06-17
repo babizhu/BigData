@@ -3,10 +3,13 @@ package com.bbz.bigdata.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 import java.util.*;
+
 
 /**
  * Created by liu_k on 2016/6/7.
@@ -124,6 +127,34 @@ public class Guide{
         System.out.println( noVersionMap.size() );
     }
 
+    /**
+     * scan时候，batch以及cache的组合用法，造成的rpc的变化次数
+     */
+    private void scanBatch( int caching,int batch, boolean small ) throws IOException{
+        int count = 0;
+        Scan scan = new Scan()
+                .setCaching(caching)  // co ScanCacheBatchExample-1-Set Set caching and batch parameters.
+                .setBatch(batch)
+                .setSmall(small)
+                .setScanMetricsEnabled(true);
+        ResultScanner scanner = table.getScanner(scan);
+//        printResult( scanner );
+        for (Result result : scanner) {
+            count++; // co ScanCacheBatchExample-2-Count Count the number of Results available.
+        }
+        scanner.close();
+        ScanMetrics metrics = scan.getScanMetrics();
+        System.out.println("Caching: " + caching + ", Batch: " + batch +
+                ", Small: " + small + ", Results: " + count +
+                ", RPCs: " + metrics.countOfRPCcalls);
+
+
+    }
+
+    /**
+     * 获取数据
+     * @throws IOException
+     */
     private void scan() throws IOException{
         ResultScanner scanner = null;
 
@@ -137,12 +168,13 @@ public class Guide{
             scan.addColumn( info,NAME );//特定的列
             scan.setStartRow( Bytes.toBytes( 198 ) );
             scan.setStopRow( Bytes.toBytes( 199 ) );
+//            scan.setBatch(  )
             scanner =  table.getScanner( scan );
             printResult( scanner );
 
             //timeout
             int scannerTimeout = (int) config.getLong( HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1);
-            System.out.println( scannerTimeout );
+            System.out.println( "扫描超时时间为" + scannerTimeout );
         }finally {
             if( scanner != null ){
                 scanner.close();
@@ -157,12 +189,14 @@ public class Guide{
     private void printResult(ResultScanner scanner){
         for( Result result : scanner ) {
             NavigableMap<byte[], NavigableMap<byte[], byte[]>> map = result.getNoVersionMap();
+            System.out.println(  Bytes.toInt( result.getRow() ));
             for( Map.Entry<byte[], NavigableMap<byte[], byte[]>> entry : map.entrySet() ) {
-                System.out.println( "列族名 : " + Bytes.toString( entry.getKey() ) );
+
+                System.out.println( "\t列族名 : " + Bytes.toString( entry.getKey() ) );
                 for( NavigableMap<byte[], byte[]> navigableMap : map.values() ) {
                     for( Map.Entry<byte[], byte[]> entry1 : navigableMap.entrySet() ) {
                         String colQuaName = Bytes.toString( entry1.getKey() );
-                        System.out.println( "\t" + Bytes.toInt( result.getRow() ) + "-" + colQuaName + " : " +
+                        System.out.println( "\t" + colQuaName + " : " +
                                 (colQuaName.equals( "name" ) ? Bytes.toString( entry1.getValue() ) : Bytes.toInt( entry1.getValue() )) );
                     }
 
@@ -174,16 +208,40 @@ public class Guide{
     /**
      * 杂项测试
      * 1、获取缓冲大小
+     * 2、获取表名
+     * 3、获取配置内容
+     * 4、获取表结构描述
      */
     private void misc() throws IOException{
         BufferedMutator mutator = connection.getBufferedMutator( TableName.valueOf( TABLE_NAME ) );
         System.out.println( "缓冲区长度：" + mutator.getWriteBufferSize() );
 
-        HTable hTable = (HTable) table;
+        System.out.println( "table name is " + Bytes.toString( table.getTableName()));
+        Configuration configuration = table.getConfiguration();
+        System.out.println("配置文件内容\n" + configuration);
+       this.printTableDescriptor();
+    }
 
-//        hTable.che
+    private void printTableDescriptor() throws IOException{
+        HTableDescriptor tableDescriptor = table.getTableDescriptor();
+        HColumnDescriptor[] columnFamilies = tableDescriptor.getColumnFamilies();
 
-//        hTable.setAutoFlushTo( true );//设置缓冲区
+
+        List<HRegionLocation> regionLocations = table.getRegionLocator().getAllRegionLocations();
+        for( HRegionLocation regionLocation : regionLocations ) {
+            System.out.println(regionLocation);
+        }
+        for( HColumnDescriptor columnFamily : columnFamilies ) {
+            System.out.println( columnFamily );
+
+            for( Map.Entry<ImmutableBytesWritable, ImmutableBytesWritable> entry : columnFamily.getValues().entrySet() ) {
+                System.out.println( Bytes.toString(  entry.getKey().get()) + ":" + entry.getValue() );
+            }
+
+//            System.out.println(columnFamily.getValues());
+        }
+
+
     }
 
     /**
@@ -206,9 +264,10 @@ public class Guide{
 //        new Guide().put();
         Guide guide = new Guide();
 //        guide.checkExist();
-//        guide.misc();
+        guide.misc();
 //        guide.atomicAction();
 //        guide.get();
-        guide.scan();
+//        guide.scan();
+//        guide.scanBatch( 100,1,false );
     }
 }
