@@ -1,0 +1,19 @@
+option java_package = "com.bbz.bigdata";
+
+option java_outer_classname = "getRowCount";
+option java_generic_services = true;
+option optimize_for = SPEED;
+
+message getRowCountRequest{
+    required bool reCount = 1;
+}
+
+message getRowCountResponse {
+    optional int64 rowCount = 1;
+}
+
+
+service ibmDeveloperWorksService {
+    rpc getRowCount(getRowCountRequest)
+    returns(getRowCountResponse);
+}

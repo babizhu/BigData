@@ -4,6 +4,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -33,6 +36,20 @@ public class Guide{
         this.table = (HTable) connection.getTable( TableName.valueOf( TABLE_NAME ) );
     }
 
+    private void singleColumnValueFilter() throws IOException{
+        SingleColumnValueFilter filter = new SingleColumnValueFilter(
+                info,
+                age, CompareFilter.CompareOp.GREATER,
+                new BinaryComparator( Bytes.toBytes( 98 ) )
+        );
+
+//        filter.setFilterIfMissing( true );
+        Scan scan = new Scan( );
+        scan.setFilter( filter );
+        ResultScanner scanner = table.getScanner( scan );
+        printResult( scanner );
+
+    }
     /**
      * 写入数据
      */
@@ -264,7 +281,8 @@ public class Guide{
 //        new Guide().put();
         Guide guide = new Guide();
 //        guide.checkExist();
-        guide.misc();
+//        guide.misc();
+        guide.singleColumnValueFilter();
 //        guide.atomicAction();
 //        guide.get();
 //        guide.scan();
