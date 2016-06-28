@@ -27,6 +27,7 @@ public class RowFilterExample{
 
         Connection connection = ConnectionFactory.createConnection( conf );
         Table table = connection.getTable( TableName.valueOf( "testtable" ) );
+//        table.checkAndPut(  )
         // vv RowFilterExample
         Scan scan = new Scan();
         scan.addColumn( Bytes.toBytes( "colfam1" ), Bytes.toBytes( "col-1" ) );

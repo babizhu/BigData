@@ -110,6 +110,7 @@ public class Guide{
         System.out.println( Bytes.toInt( result.value() ) );//返回age的值，因为age列排在name前面（字典序）
         System.out.println( "行键为 :" + Bytes.toInt( result.getRow() ) );
         System.out.println( "size为 ：" + result.size() );
+        
         Cell[] cells = result.rawCells();
         for( Cell cell : cells ) {
             System.out.println( cell );

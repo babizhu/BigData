@@ -5,6 +5,7 @@ import org.apache.hadoop.hbase.CellComparator;
 import org.apache.hadoop.hbase.CellScanner;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.xpath.operations.String;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -68,7 +68,7 @@
                             <classpathPrefix>lib/</classpathPrefix>
 
                             <!--<mainClass>com.bbz.bigdata.mapreduce.transform.Launcher</mainClass>-->
-                            <mainClass>com.bbz.bigdata.mapreduce.job.JobInfo</mainClass>
+                            <mainClass>com.bbz.bigdata.mapreduce.hbase.CountShakespeare</mainClass>
                             <!--运行的主类-->
 
                         </manifest>
